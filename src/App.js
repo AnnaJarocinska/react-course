@@ -1,26 +1,48 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {ThemeProvider} from 'styled-components';
+import theme from 'utils/theme';
+import {Navigation, Wrapper, LoadingIndicator, Button} from 'components';
+import GlobalStyles from './index.css';
+import {Router, Route, Switch} from 'react-router-dom';
+
+import {useTranslation} from 'react-i18next';
 
 function App() {
+  const { i18n } = useTranslation();
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <GlobalStyles />
+      <Router>
+        <Navigation items={[
+          {content: 'Homepage', to: '/'},
+          {content: 'Budget', to: '/budget'},
+        ]}
+        RightElement={(
+          <div>
+            <Button variant = "regular" onClick={()=> i18n.changeLanguage('pl')}> pl </Button>
+            <Button variant = "regular" onClick={()=> i18n.changeLanguage('en')}> en </Button>
+          </div>
+        )}
+        />
+        <Wrapper>
+        <Switch>
+          <Route exact path="/"> Homepage </Route>
+          <Route path="/budget"> Budget </Route>
+        </Switch>
+        </Wrapper>
+      </Router>
     </div>
+
   );
 }
 
-export default App;
+function RootApp(){
+  return(
+    <ThemeProvider theme={theme}>
+    <React.Suspense fallback={<LoadingIndicator/>}>
+      <App/>
+    </React.Suspense>
+    </ThemeProvider>
+  )
+}
+export default RootApp;
