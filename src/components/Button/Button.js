@@ -28,7 +28,7 @@ function Button({ variant, children, ...props }) {
             {content}
         </Link>
     ) : (
-            <Fragment>
+npm             <Fragment>
                 {content}
             </Fragment>
         )
