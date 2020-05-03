@@ -1,6 +1,5 @@
 
 import {
-    ALL_CATEGORIES_GET,
 ALL_CATEGORIES_GET_REQUEST,
 ALL_CATEGORIES_GET_SUCCESS,
  ALL_CATEGORIES_GET_FAILURE,
@@ -13,7 +12,7 @@ const initialState = {
     allCategories:[],
 }
 
-function budget(state = initialState, action) {
+function common (state = initialState, action) {
     const newLoadingState = {...state.loadingState};
     switch (action.type) {
         case ALL_CATEGORIES_GET_REQUEST:
@@ -46,4 +45,4 @@ function budget(state = initialState, action) {
     }
 }
 
-export default budget;
+export default common;
