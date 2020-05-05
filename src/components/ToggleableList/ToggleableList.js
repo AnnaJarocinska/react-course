@@ -1,4 +1,4 @@
-import React, {useState, Fragment} from 'react';
+import React, {useState, Fragment, useEffect} from 'react';
 
 
 const Item = ({item, onClickHandler, isActive}) => (
@@ -10,8 +10,12 @@ const Item = ({item, onClickHandler, isActive}) => (
 
 
 
-function ToggleableList ({items}) {
-const [selectedItem, setSelectedItem] = useState()
+function ToggleableList ({items clickRef}) {
+const [selectedItem, setSelectedItem] = useState();
+
+useEffect(() => {
+    clickRef.current = setSelectedItem
+}, [clickRef, setSelectedItem])
 
 return(
     <Fragment>
