@@ -5,9 +5,12 @@ import { Navigation, Wrapper, LoadingIndicator, Button } from 'components';
 import GlobalStyles from './index.css';
 import { Router, Route, Switch } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import {toast} from 'react-tostify';
+import 'react-toastify/dist/React-toastify.css';
 
 import Budget from 'pages/Budget';
 
+toast.configure();
 
 function App({ budget, fetchBudget, fetchBudgetedCategories }) {
 

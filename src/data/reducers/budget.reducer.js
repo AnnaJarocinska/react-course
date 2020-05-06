@@ -10,6 +10,9 @@ import {
     BUDGETED_CATEGORIES_GET_SUCCESS,
     BUDGETED_CATEGORIES_GET_FAILURE,
 
+    BUDGET_TRANSACTION_ADD_REQUEST,
+    BUDGET_TRANSACTION_ADD_SUCCESS,
+
     SET_SELECTED_PARENT_CATEGORY_ID,
 
 } from 'data/constants';
@@ -73,6 +76,32 @@ function budget(state = initialState, action) {
                 budgetedCategories: {},
                 loadingState: newLoadingState,
             }
+
+            
+            case BUDGET_TRANSACTION_ADD_REQUEST:
+            return {
+                ...state,
+                loadingState:{
+                ...state.loadingState,
+                [action.type]: LOADING_STATES.LOADING,
+                }
+            }
+
+        case BUDGET_TRANSACTION_ADD_SUCCESS:
+            delete newLoadingState.BUDGETED_CATEGORIES_GET_REQUEST;
+            return {
+                ...state,
+                budget: {
+                  ...state.budget,
+                  transactions: [
+                      action.payload,
+                      ...state.budget.transactions,
+                  ]
+                },
+                loadingState: newLoadingState,
+            }
+
+
 
             case SET_SELECTED_PARENT_CATEGORY_ID:
                 return {
