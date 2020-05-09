@@ -7,6 +7,7 @@ import { Router, Route, Switch } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {toast} from 'react-tostify';
 import 'react-toastify/dist/React-toastify.css';
+import {ReactQueryConfigProvider} from 'react-query';
 
 import Budget from 'pages/Budget';
 
@@ -36,7 +37,9 @@ function App({ budget, fetchBudget, fetchBudgetedCategories }) {
                Homepage 
                </Route>
             <Route path="/budget"> 
+            
             <Budget/>
+           
              </Route>
           </Switch>
         </Wrapper>
@@ -44,17 +47,21 @@ function App({ budget, fetchBudget, fetchBudgetedCategories }) {
     </div>
 
   );
+          }
+const queryConfig = {
+  suspense: true,
+  refetchAllOnWindowFocus: false,
+
 }
-
-
-
 function RootApp() {
   return (
+    <ReactQueryConfigProvider config={queryConfig}>
     <ThemeProvider theme={theme}>
       <React.Suspense fallback={<LoadingIndicator />}>
         <App />
       </React.Suspense>
     </ThemeProvider>
+    </ReactQueryConfigProvider>
   )
 }
 export default RootApp;

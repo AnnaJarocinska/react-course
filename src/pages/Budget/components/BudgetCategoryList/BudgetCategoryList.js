@@ -2,16 +2,19 @@ import React, {useRef, useMemo, useCallback} from 'react';
 import { connect } from 'react-redux';
 import { gropuBy } from 'lodash';
 import { useTranslation } from 'react-i18next';
+import {useQuery} from 'react-query';
 import 'styled-components/macro'
 import { ToggleableList } from 'components';
 import ParentCategory from './ParentCategory';
 import CategoryItem from './CategoryItem';
 import {selectParentCategory} from 'data/actions/budget.actions.'
 import BudgetTransactionList from './BudgetTransactionList';
+import API from 'data/fetch';
 
-
-function BudgetCategoryList({ budgetedCategories, allCategories, budget,
-     selectParentCategory }) {
+function BudgetCategoryList({selectParentCategory}) {
+    const {data: budget} = useQuery( ['budget', {id: 1}], API.budget.fetchBudget);
+    const {data: allCategories} = useQuery( 'allCategories', API.common.fetchAllCategories);
+    const {data: budgetedCategories} = useQuery( ['budgetedCategories', {id: 1}], API.budget.fetchBudgetedCategories);
     const { t } = useTranslation();
     const handleClickParentCategoryRef = useRef(null); 
     const budgetedCategoriesByParent = useMemo(() => gropuBy(budgetedCategories,
@@ -112,11 +115,7 @@ function BudgetCategoryList({ budgetedCategories, allCategories, budget,
 
 }
 
-export default connect(state => ({
-    budgetedCategories: state.budget.budgetedCategories,
-    allCategories: state.common.allCategories,
-    budget: state.budget.budget,
-}), {
+export default connect(null, {
     selectParentCategory
 }
 )(BudgetCategoryList)

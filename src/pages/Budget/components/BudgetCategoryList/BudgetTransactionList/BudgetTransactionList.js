@@ -2,26 +2,29 @@ import React, { useMemo } from 'react';
 import { List, ListItem } from './BudgetTransactionList.css';
 import { connect } from 'react-redux';
 import { groupBy } from 'lodash';
+import {useQuery} from 'react-query';
 import { formatCurrency, formatDate } from 'utils';
 import { selectedParentCategory, selectParentCategory } from 'data/actions/budget.actions.';
+import API from 'data/fetch'
 
 
-function BudgetTransactionList({ transactions, allCategories, budgetedCategories, selectedParentCategoryId }) {
+function BudgetTransactionList({selectedParentCategoryId }) {
+    const {data: budget} = useQuery( ['budget', {id: 1}], API.budget.fetchBudget);
+    const {data: allCategories} = useQuery( 'allCategories', API.common.fetchAllCategories);
+    const {data: budgetedCategories} = useQuery( ['budgetedCategories', {id: 1}], API.budget.fetchBudgetedCategories);
 
     const filteredTransactionsBySelectedParentCategory = useMemo(() => {
         if (typeof selectedParentCategoryId === 'undefined') {
-            return transactions
+            return budget.transactions
         }
         if (selectedParentCategory === null) {
-            return transactions.filter(transaction => {
+            return budget.transactions.filter(transaction => {
                 const hasBudgetedCategory = budgetedCategories
                     .some(budgetedCategory => budgetedCategory.categoryId === transactions.categoryId)
             })
         }
 
-
-
-        return transactions
+        return budget.transactions
             .filter(transaction => {
                 try {
                     const category = allCategories
@@ -33,7 +36,7 @@ function BudgetTransactionList({ transactions, allCategories, budgetedCategories
                     return false;
                 }
             })
-    }, [allCategories, budgetedCategories, selectParentCategory, transactions]);
+    }, [allCategories, budgetedCategories, selectParentCategory, budget.transactions]);
 
 
 
@@ -64,8 +67,5 @@ return (
 };
 
 export default connect(state => ({
-    transactions: state.budget.budget.transactions,
-    budgetedCategories: state.budget.budgetedCategories,
-    allCategories: state.common.allCategories,
     selectedParentCategoryId: state.budget.selectedParentCategoryId,
 }))(BudgetTransactionList);

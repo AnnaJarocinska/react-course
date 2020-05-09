@@ -1,72 +1,41 @@
-import React, { useEffect, useMemo, Fragment } from 'react';
-import { connect } from 'react-redux';
-import {Switch, Route, useHistory} from 'react-router-dom';
-import { fetchBudget, fetchBudgetedCategories, addTransaction } from 'data/actions/budget.actions';
-import { fetchAllCategories } from 'data/actions/common.actions'
-import {Grid } from './Budget.css';
-import {LoadingIndicator, Modal, Button} from 'components';
-import BudgetCategoryList from '/pages/Budget/components/BudgetCategoryList';
-import BudgetTransactionList from './pages/Budget/components/BudgetTransactionList';
-import AddTransactionForm from './pages/Budget/components/AddTransactionForm';
+import React, {Fragment, useState} from 'react';
+import {Switch, Route} from 'react-router-dom';
+import {Grid} from './Budget.css';
+import {Modal, Button, SuspenseErrorBoundary} from 'components';
+
+const BudgetCategoryList = React.lazy(()=> import ('/pages/Budget/components/BudgetCategoryList'));
+const BudgetTransactionList = React.lazy(()=> import ('./pages/Budget/components/BudgetTransactionList'));
+const AddTransactionView = React.lazy(()=> import ('./pages/Budget/components/AddTransactionForm'));
 
 function Budget({
-    budgetState, commonState, allCategories, budget, 
-    fetchBudget, fetchBudgetedCategories, fetchAllCategories, addTransaction
+    fetchBudget, fetchBudgetedCategories, fetchAllCategories,  addTransaction
 }) {
-    const history = useHistory();
-    useEffect(() => {
-        fetchBudget(1);
-        fetchBudgetedCategories(1);
-        fetchAllCategories();
-    }, [fetchBudget, fetchBudgetedCategories, fetchAllCategories]);
-
-    const isLoaded = useMemo(() => (!!commonState && Object.keys(commonState).length === 0)
-        &&
-        (!!budgetState && Object.keys(budgetState).length === 0),
-        [commonState, budgetState]
-    );
-
-    const handleSubmitAddTransaction = (values) => {
-addTransaction({
-    budgetId: budget.id,
-    data: values
-}).then(()=> {
-    history.goBack()
-})
-    }
-
+    
+const [showTransactions, setShowTransactions] = useState();
     return (
         <Fragment>
         <Grid>
             <section>
-                {isLoaded ? (
+                <SuspenseErrorBoundary>
                     <BudgetCategoryList/>
-                ) : (
-                        <LoadingIndicator></LoadingIndicator>
-                    )}
+                    </SuspenseErrorBoundary>
             </section>
 
             <section>
-                {isLoaded ? (
-                 <Fragment>
-                     <Button to="/budget/transactions/new">Add new transaction</Button>
-                <BudgetTransactionList/> 
-                </Fragment>
-                ): (
-                    <LoadingIndicator></LoadingIndicator>
-                )}
+            <SuspenseErrorBoundary>
+                <Button to="/budget/transactions/new">Add new transaction</Button>
+                <Button onClick={() => setShowTransactions(!showTransactions)}>
+                    {Show transactions ? 'Hide transactions' : 'Show transactions'}
+                    </Button>
+                    {showTransactions && ( <BudgetTransactionList/>) }
                 
+                </SuspenseErrorBoundary>
             </section>
-
         </Grid>
         <Switch>
             <Route path="budget/transactions/new">
             <Modal>
-                <AddTransactionForm
-                categories={allCategories}
-                groupCategoriesBy="parentCategory.name"
-                onSubmit={handleSubmitAddTransaction}
-                />
+                <AddTransactionView/>
             </Modal>
             </Route>
         </Switch>
@@ -74,18 +43,4 @@ addTransaction({
     )
 }
 
-export default connect(state => {
-    return {
-        budget: state.budget.budget,
-        commonState: state.commmon.loadingState,
-        budgetState: state.budget.budgetState,
-        allCategories: state.common.allCategories,
-    }
-}, {
-    fetchBudget,
-    fetchBudgetedCategories,
-    fetchAllCategories,
-    addTransaction,
-}
-)(Budget)
-
+export default Budget;
