@@ -1,7 +1,8 @@
-import React, {Fragment, useState} from 'react';
+import React, {useState} from 'react';
 import {Switch, Route} from 'react-router-dom';
 import {Grid} from './Budget.css';
 import {Modal, Button, SuspenseErrorBoundary} from 'components';
+import BudgetContext from 'data/constext/budget.context.js';
 
 const BudgetCategoryList = React.lazy(()=> import ('/pages/Budget/components/BudgetCategoryList'));
 const BudgetTransactionList = React.lazy(()=> import ('./pages/Budget/components/BudgetTransactionList'));
@@ -13,7 +14,7 @@ function Budget({
     
 const [showTransactions, setShowTransactions] = useState();
     return (
-        <Fragment>
+        <BudgetContext.BudgetProvider>
         <Grid>
             <section>
                 <SuspenseErrorBoundary>
@@ -25,7 +26,7 @@ const [showTransactions, setShowTransactions] = useState();
             <SuspenseErrorBoundary>
                 <Button to="/budget/transactions/new">Add new transaction</Button>
                 <Button onClick={() => setShowTransactions(!showTransactions)}>
-                    {Show transactions ? 'Hide transactions' : 'Show transactions'}
+                    {showTransactions ? 'Hide transactions' : 'Show transactions'}
                     </Button>
                     {showTransactions && ( <BudgetTransactionList/>) }
                 
@@ -39,7 +40,7 @@ const [showTransactions, setShowTransactions] = useState();
             </Modal>
             </Route>
         </Switch>
-        </Fragment>
+        </BudgetContext.BudgetProvider>
     )
 }
 

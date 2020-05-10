@@ -1,5 +1,4 @@
-import React, {useRef, useMemo, useCallback} from 'react';
-import { connect } from 'react-redux';
+import React, {useRef, useMemo, useCallback, useContext} from 'react';
 import { gropuBy } from 'lodash';
 import { useTranslation } from 'react-i18next';
 import {useQuery} from 'react-query';
@@ -7,14 +6,20 @@ import 'styled-components/macro'
 import { ToggleableList } from 'components';
 import ParentCategory from './ParentCategory';
 import CategoryItem from './CategoryItem';
-import {selectParentCategory} from 'data/actions/budget.actions.'
 import BudgetTransactionList from './BudgetTransactionList';
 import API from 'data/fetch';
+import BudgetContext from 'data/context/budget.context.js'
 
-function BudgetCategoryList({selectParentCategory}) {
+function BudgetCategoryList() {
     const {data: budget} = useQuery( ['budget', {id: 1}], API.budget.fetchBudget);
     const {data: allCategories} = useQuery( 'allCategories', API.common.fetchAllCategories);
     const {data: budgetedCategories} = useQuery( ['budgetedCategories', {id: 1}], API.budget.fetchBudgetedCategories);
+    const {dispatch} = useContext(BudgetContext.store);
+    const setSelectedParetCategoryId =  useCallback((id) => dispatch({
+        type: 'selectParentCategoryId',
+        payload: id
+    }), [dispatch])
+
     const { t } = useTranslation();
     const handleClickParentCategoryRef = useRef(null); 
     const budgetedCategoriesByParent = useMemo(() => gropuBy(budgetedCategories,
@@ -22,14 +27,14 @@ function BudgetCategoryList({selectParentCategory}) {
     ), [budgetedCategories, allCategories])
 
     const handleClearParentCategorySelect = useCallback(() => {
-        selectParentCategory();
+        setSelectedParetCategoryId();
         handleClickParentCategoryRef.current();
-    }, [selectParentCategory, handleClearParentCategoryRef]);
+    }, [setSelectedParetCategoryId, handleClearParentCategoryRef]);
 
     const handleSelectRestParentCategories = useCallback( () => {
-        selectParentCategory(null);
+        setSelectedParetCategoryId;
         handleClickParentCategoryRef.current()
-    }, [selectParentCategory, handleClickParentCategoryRef])
+    }, [setSelectedParetCategoryId, handleClickParentCategoryRef])
 
     const listItems = useMemo(()=>Object.entries(budgetedCategoriesByParent).map(([parentName, categories]) => ({
         id: parentName,
@@ -38,7 +43,7 @@ function BudgetCategoryList({selectParentCategory}) {
                 name={parentName}
                 onClick={() => {
                     onClick(parentName);
-                    selectParentCategory(parentName);
+                    setSelectedParetCategoryId(parentName);
                 }}
                 categories={categories}
                 transactions={budget.transactions}
@@ -57,7 +62,7 @@ function BudgetCategoryList({selectParentCategory}) {
 
             )
         }),
-    })), [allCategories, budget.transactions, budgetedCategoriesByParent, selectParentCategory ]);
+    })), [allCategories, budget.transactions, budgetedCategoriesByParent, setSelectedParetCategoryId ]);
 
     const totalSpent = useMemo(()=> budget.transactions
         .reduce((acc, transaction) => acc + transaction.amount, 0), [budget.transactions]);
@@ -115,7 +120,4 @@ function BudgetCategoryList({selectParentCategory}) {
 
 }
 
-export default connect(null, {
-    selectParentCategory
-}
-)(BudgetCategoryList)
+export default BudgetCategoryList; 
